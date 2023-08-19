@@ -1,0 +1,30 @@
+<html>
+{% extends 'base.html' %}
+<body>
+{% block content %}
+  
+  <form class="form-horizontal p-5" id="add-client-form" method="post">
+    <h2>Client</h2>
+    <div class="form-control">
+    <label>First Name</label>
+      <input class="form-control" name="firstName" type="text"/>
+      <label>Last Name</label>
+      <input class="form-control" name="lastName" type="text"/>
+      <label>Address</label>
+      <input class="form-control" name="address" type="text"/>
+      <label>City</label>
+      <input class="form-control" name="city" type="text"/>
+      <label>Telephone</label>
+      <input class="form-control" name="telephone" type="text"/>
+</div>
+      <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button
+          class="btn btn-primary" type="submit">Add
+          client</button>
+      </div>
+    </div>
+  </form>
+  {% endblock %}
+</body>
+</html>
