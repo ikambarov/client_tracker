@@ -1,6 +1,6 @@
-# client_tracker
+# Client Tracker
 
-A small Django app for tracking clients and generating CPU/database load.
+A small Django app for tracking clients.
 
 ## Install on Linux
 
@@ -27,7 +27,7 @@ Open the app:
 http://INSTANCE_PUBLIC_IP/
 ```
 
-## Reconfigure or reset system settings
+## Reset app
 
 This removes the current app folder, clones a fresh copy, and runs setup again:
 
@@ -77,7 +77,7 @@ DB_USER              Writer database username. Default: admin
 DB_PASSWORD          Writer database password. Default: empty
 ```
 
-Example with one writer only:
+Example with writer:
 
 ```bash
 cd ~/client_tracker
@@ -98,7 +98,7 @@ DB_READER_USER       Reader database username. Default: admin
 DB_READER_PASSWORD   Reader database password. Default: empty
 ```
 
-Example with one writer and one reader:
+Example with writer and reader:
 
 ```bash
 cd ~/client_tracker
@@ -115,23 +115,23 @@ DB_READER_PASSWORD=reader-password \
 ./scripts/setup_systemd.sh
 ```
 
-## Generate load with existing pages
+## Benchmark app/db
 
 Run these from the Linux server:
 
-Install ApacheBench before running these `ab` commands.
+Install ApacheBench before running these `ab` command.
 
-The home page tests static page reads.
+The Home page tests static page reads.
 ```bash
 ab -n 200 -c 10 "http://0.0.0.0/"
 ```
 
-The find clients page tests database/page reads.
+The Find Clients page tests database reads.
 ```bash
 ab -n 200 -c 10 "http://0.0.0.0/find_client"
 ```
 
-The add client page tests database/page writes.
+The add client page tests database writes.
 ```bash
 ab -n 200 -c 10 -p scripts/add-client-post-data.txt -T application/x-www-form-urlencoded "http://0.0.0.0/add_client"
 ```
