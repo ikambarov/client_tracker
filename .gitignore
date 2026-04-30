@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Django/local runtime files
+db.sqlite3
+*.sqlite3
+*.log
+media/
+staticfiles/
+
+# Secrets and local environment
+.env
+.env.*
+*.pem
+*.key
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build/package output
+build/
+dist/
+*.egg-info/
+
+# Editor and OS files
+.vscode/
+.idea/
+.cursor/
+.zed/
+.fleet/
+.project
+.settings/
+.DS_Store
+
+# Local AI/editor agent metadata
+.codex
+.codex/
+.agents/
+.claude/
+.continue/
+.aider*
+.aider.chat.history.md
+.aider.input.history
+.aider.tags.cache.v3/
+.cody/
+.copilot/
+.github-copilot/
+.tabnine/
+.windsurf/
+.qodo/
+.replit/
+AGENTS.local.md
+CLAUDE.local.md

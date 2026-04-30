@@ -1,30 +1,33 @@
-<html>
 {% extends 'base.html' %}
-<body>
+
 {% block content %}
   
-  <form class="form-horizontal p-5" id="add-client-form" method="post">
-    <h2>Client</h2>
-    <div class="form-control">
-    <label>First Name</label>
-      <input class="form-control" name="firstName" type="text"/>
-      <label>Last Name</label>
-      <input class="form-control" name="lastName" type="text"/>
-      <label>Address</label>
-      <input class="form-control" name="address" type="text"/>
-      <label>City</label>
-      <input class="form-control" name="city" type="text"/>
-      <label>Telephone</label>
-      <input class="form-control" name="telephone" type="text"/>
-</div>
-      <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <button
-          class="btn btn-primary" type="submit">Add
-          client</button>
-      </div>
+  <form class="form-horizontal" id="add-client-form" method="post">
+    {% csrf_token %}
+    <h2>Add Client</h2>
+    <div class="mb-3">
+      <label class="form-label" for="firstName">First Name</label>
+      <input class="form-control" id="firstName" name="firstName" type="text" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="lastName">Last Name</label>
+      <input class="form-control" id="lastName" name="lastName" type="text" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="address">Address</label>
+      <input class="form-control" id="address" name="address" type="text" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="city">City</label>
+      <input class="form-control" id="city" name="city" type="text" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="telephone">Telephone</label>
+      <input class="form-control" id="telephone" name="telephone" type="text" required>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary" type="submit">Add Client</button>
+      <a class="btn btn-outline-secondary" href="{% url 'find_client' %}">Cancel</a>
     </div>
   </form>
-  {% endblock %}
-</body>
-</html>
+{% endblock %}

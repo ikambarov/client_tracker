@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" viewBox="0 0 760 360" role="img" aria-labelledby="title desc">
+  <title id="title">Client records illustration</title>
+  <desc id="desc">A simple dashboard-style illustration showing client records and database activity.</desc>
+  <rect width="760" height="360" rx="18" fill="#f3f7fb"/>
+  <rect x="64" y="48" width="632" height="264" rx="14" fill="#ffffff" stroke="#d5e0ea" stroke-width="2"/>
+  <rect x="64" y="48" width="632" height="54" rx="14" fill="#2f3b46"/>
+  <circle cx="96" cy="75" r="8" fill="#6db33f"/>
+  <circle cx="122" cy="75" r="8" fill="#d9e5ee"/>
+  <circle cx="148" cy="75" r="8" fill="#d9e5ee"/>
+  <text x="178" y="81" fill="#ffffff" font-family="Verdana, Arial, sans-serif" font-size="18">Client Tracker</text>
+
+  <rect x="104" y="132" width="232" height="132" rx="10" fill="#eef5f0" stroke="#cbded0"/>
+  <circle cx="144" cy="172" r="24" fill="#6db33f"/>
+  <circle cx="144" cy="163" r="8" fill="#ffffff"/>
+  <path d="M124 207c5-18 34-18 40 0" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+  <rect x="184" y="154" width="112" height="12" rx="6" fill="#2f3b46"/>
+  <rect x="184" y="184" width="92" height="10" rx="5" fill="#7d8b96"/>
+  <rect x="184" y="210" width="124" height="10" rx="5" fill="#7d8b96"/>
+
+  <rect x="376" y="132" width="280" height="28" rx="6" fill="#e8eef4"/>
+  <rect x="396" y="170" width="240" height="16" rx="8" fill="#6db33f" opacity="0.85"/>
+  <rect x="396" y="202" width="196" height="16" rx="8" fill="#8ca0af"/>
+  <rect x="396" y="234" width="222" height="16" rx="8" fill="#8ca0af"/>
+  <rect x="396" y="266" width="154" height="16" rx="8" fill="#8ca0af"/>
+
+  <path d="M574 94v38" stroke="#6db33f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M558 116l16 16 16-16" fill="none" stroke="#6db33f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="606" cy="292" rx="50" ry="14" fill="#d8e3eb"/>
+  <rect x="556" y="250" width="100" height="42" rx="21" fill="#2f3b46"/>
+  <ellipse cx="606" cy="250" rx="50" ry="14" fill="#4a5965"/>
+  <ellipse cx="606" cy="250" rx="30" ry="7" fill="#6db33f"/>
+</svg>

@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,13 +22,39 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h)k)x6)xvz!x8ijk!(n91rgufd&le&7gruz2v)0!^_+8=v*5fi'
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.lower() in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name, default=''):
+    return [item.strip() for item in os.environ.get(name, default).split(',') if item.strip()]
+
+
+# SECURITY WARNING: keep the secret key used in production secret.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured('DJANGO_SECRET_KEY environment variable is required.')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = ['192.168.1.40','localhost']
+ALLOWED_HOSTS = env_list(
+    'DJANGO_ALLOWED_HOSTS',
+    '*'
+)
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
+
+SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', False)
+SESSION_COOKIE_SECURE = env_bool('DJANGO_SECURE_COOKIES', SECURE_SSL_REDIRECT)
+CSRF_COOKIE_SECURE = env_bool('DJANGO_SECURE_COOKIES', SECURE_SSL_REDIRECT)
+SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
+SECURE_HSTS_PRELOAD = env_bool('DJANGO_SECURE_HSTS_PRELOAD', False)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'same-origin'
 
 
 # Application definition
@@ -42,6 +71,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,14 +102,30 @@ WSGI_APPLICATION = 'client_tracker.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+# Use SQLite by default. Set DATABASE_TYPE=mysql to use MySQL.
+DATABASE_TYPE = os.environ.get('DATABASE_TYPE', 'sqlite').lower()
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DATABASE_TYPE == 'mysql':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DB_NAME', 'client_tracker'),
+            'USER': os.environ.get('DB_USER', 'admin'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', ''),
+            'PORT': os.environ.get('DB_PORT', '3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -117,6 +163,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -124,5 +171,3 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [BASE_DIR,'static']
-
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

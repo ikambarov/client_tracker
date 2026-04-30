@@ -1,4 +1,10 @@
-<html>
 {% extends 'base.html' %}
+{% load static %}
 
-</html>
+{% block content %}
+<section class="text-center">
+    <h1 class="mb-3">Client Tracker</h1>
+    <p class="lead mb-4">Use this app to find clients or add a new client record.</p>
+    <img class="img-fluid mt-3" src="{% static 'images/client_records.svg' %}" alt="Client records and database dashboard illustration">
+</section>
+{% endblock %}

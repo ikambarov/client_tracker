@@ -1,0 +1,18 @@
+[Unit]
+Description=Client Tracker Django App
+After=network.target
+
+[Service]
+User=__APP_USER__
+Group=__APP_GROUP__
+WorkingDirectory=__APP_DIR__
+EnvironmentFile=-__ENV_FILE__
+Environment="PATH=__APP_DIR__/.venv/bin"
+ExecStart=__APP_DIR__/.venv/bin/gunicorn client_tracker.wsgi:application --bind 0.0.0.0:__PORT__ --workers __GUNICORN_WORKERS__ --timeout __GUNICORN_TIMEOUT__
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
