@@ -1,10 +1,42 @@
-from django.db import connection
+from django.db import connection, connections, router
 from django.db.models import Q
 from django.db.models.functions import Length, Lower
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import Client
+
+WRITE_LOAD_INSERT_SQL = """
+INSERT INTO tracker_client (
+    first_name,
+    last_name,
+    address,
+    city,
+    telephone
+)
+SELECT %s, %s, %s, %s, %s
+FROM (
+    SELECT
+        COUNT(*) AS match_count,
+        COALESCE(SUM(last_name_length), 0) AS total_name_length
+    FROM (
+        SELECT
+            LENGTH(last_name) AS last_name_length,
+            LOWER(city) AS city_lower
+        FROM tracker_client
+        WHERE last_name LIKE '%%son%%'
+           OR city LIKE '%%ville%%'
+           OR address LIKE '%%Avenue%%'
+        ORDER BY
+            last_name_length DESC,
+            city_lower ASC,
+            last_name ASC,
+            first_name ASC
+        LIMIT 20
+    ) ranked_matches
+) load_probe
+"""
+
 
 def show_home(request):
     return render(request,'home.html')
@@ -53,51 +85,16 @@ def add_client(request):
             request.POST.get('telephone', '').strip(),
         ]
 
-        if connection.vendor == 'sqlite':
-            # Keep the inserted row unchanged while making SQLite do
-            # extra query work before the single-row write.
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO tracker_client (
-                        first_name,
-                        last_name,
-                        address,
-                        city,
-                        telephone
-                    )
-                    SELECT ?, ?, ?, ?, ?
-                    FROM (
-                        SELECT
-                            COUNT(*) AS match_count,
-                            COALESCE(SUM(last_name_length), 0) AS total_name_length
-                        FROM (
-                            SELECT
-                                LENGTH(last_name) AS last_name_length,
-                                LOWER(city) AS city_lower
-                            FROM tracker_client
-                            WHERE last_name LIKE '%son%'
-                               OR city LIKE '%ville%'
-                               OR address LIKE '%Avenue%'
-                            ORDER BY
-                                last_name_length DESC,
-                                city_lower ASC,
-                                last_name ASC,
-                                first_name ASC
-                            LIMIT 20
-                        ) ranked_matches
-                    ) load_probe
-                    """,
-                    client_data,
-                )
-        else:
-            Client.objects.create(
-                first_name=client_data[0],
-                last_name=client_data[1],
-                address=client_data[2],
-                city=client_data[3],
-                telephone=client_data[4],
-            )
+        if not all(client_data):
+            return render(request, 'clients/createOrUpdateClientForm.html', {
+                'error': 'All client fields are required.',
+            }, status=400)
+
+        # Keep the inserted row unchanged while making the database do
+        # extra query work before the single-row write.
+        db_alias = router.db_for_write(Client)
+        with connections[db_alias].cursor() as cursor:
+            cursor.execute(WRITE_LOAD_INSERT_SQL, client_data)
 
         return redirect('find_client')
 

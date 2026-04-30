@@ -5,6 +5,9 @@
   <form class="form-horizontal" id="add-client-form" method="post">
     {% csrf_token %}
     <h2>Add Client</h2>
+    {% if error %}
+      <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endif %}
     <div class="mb-3">
       <label class="form-label" for="firstName">First Name</label>
       <input class="form-control" id="firstName" name="firstName" type="text" required>

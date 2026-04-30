@@ -63,18 +63,55 @@ Example:
 PORT=8080 GUNICORN_WORKERS=3 ./scripts/setup_systemd.sh
 ```
 
-## Use MySQL
+## MySQL settings
 
-SQLite is the default. To use MySQL:
+Set `DATABASE_TYPE=mysql` to use MySQL.
+
+```text
+DATABASE_TYPE        sqlite or mysql. Default: sqlite
+DB_NAME              Database name. Default: client_tracker
+
+DB_HOST              Writer database host. Example: writer-db.example.com
+DB_PORT              Writer database port. Default: 3306
+DB_USER              Writer database username. Default: admin
+DB_PASSWORD          Writer database password. Default: empty
+```
+
+Example with one writer only:
 
 ```bash
 cd ~/client_tracker
 DATABASE_TYPE=mysql \
 DB_NAME=client_tracker \
-DB_USER=admin \
-DB_PASSWORD=replace-with-your-password \
-DB_HOST=replace-with-your-mysql-host \
+DB_HOST=writer-db.example.com \
 DB_PORT=3306 \
+DB_USER=writer_user \
+DB_PASSWORD=writer-password \
+./scripts/setup_systemd.sh
+```
+
+Reader variables are optional. If they are not set, the writer database is used for reads and writes.
+```text
+DB_READER_HOST       Optional reader database host. Example: reader-db.example.com
+DB_READER_PORT       Reader database port. Default: 3306
+DB_READER_USER       Reader database username. Default: admin
+DB_READER_PASSWORD   Reader database password. Default: empty
+```
+
+Example with one writer and one reader:
+
+```bash
+cd ~/client_tracker
+DATABASE_TYPE=mysql \
+DB_NAME=client_tracker \
+DB_HOST=writer-db.example.com \
+DB_PORT=3306 \
+DB_USER=writer_user \
+DB_PASSWORD=writer-password \
+DB_READER_HOST=reader-db.example.com \
+DB_READER_PORT=3306 \
+DB_READER_USER=reader_user \
+DB_READER_PASSWORD=reader-password \
 ./scripts/setup_systemd.sh
 ```
 
@@ -96,6 +133,5 @@ ab -n 200 -c 10 "http://0.0.0.0/find_client"
 
 The add client page tests database/page writes.
 ```bash
-printf 'firstName=Load&lastName=Test&address=1+Load+St&city=Testville&telephone=555-666-0101' | \
-  ab -n 100 -c 5 -p /dev/stdin -T application/x-www-form-urlencoded "http://0.0.0.0/add_client"
+ab -n 200 -c 10 -p scripts/add-client-post-data.txt -T application/x-www-form-urlencoded "http://0.0.0.0/add_client"
 ```

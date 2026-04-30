@@ -61,6 +61,10 @@ write_env_file() {
     printf 'DB_PASSWORD=%s\n' "$(quote_env_value "${DB_PASSWORD:-}")"
     printf 'DB_HOST=%s\n' "$(quote_env_value "${DB_HOST:-}")"
     printf 'DB_PORT=%s\n' "$(quote_env_value "${DB_PORT:-3306}")"
+    printf 'DB_READER_HOST=%s\n' "$(quote_env_value "${DB_READER_HOST:-}")"
+    printf 'DB_READER_PORT=%s\n' "$(quote_env_value "${DB_READER_PORT:-${DB_PORT:-3306}}")"
+    printf 'DB_READER_USER=%s\n' "$(quote_env_value "${DB_READER_USER:-admin}")"
+    printf 'DB_READER_PASSWORD=%s\n' "$(quote_env_value "${DB_READER_PASSWORD:-}")"
   } > "${tmp_file}"
 
   sudo install -m 0600 "${tmp_file}" "${ENV_FILE}"
@@ -79,6 +83,22 @@ write_env_file() {
   export DB_PASSWORD="${DB_PASSWORD:-}"
   export DB_HOST="${DB_HOST:-}"
   export DB_PORT="${DB_PORT:-3306}"
+  export DB_READER_HOST="${DB_READER_HOST:-}"
+  export DB_READER_PORT="${DB_READER_PORT:-${DB_PORT}}"
+  export DB_READER_USER="${DB_READER_USER:-admin}"
+  export DB_READER_PASSWORD="${DB_READER_PASSWORD:-}"
+}
+
+load_sample_data() {
+  client_count="$(
+    .venv/bin/python manage.py shell -c "from tracker.models import Client; print(Client.objects.count())"
+  )"
+
+  if [ "${client_count}" = "0" ]; then
+    .venv/bin/python manage.py loaddata sample_clients
+  else
+    echo "Skipping sample data load; ${client_count} clients already exist."
+  fi
 }
 
 write_env_file
@@ -89,7 +109,7 @@ python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python manage.py migrate
-.venv/bin/python manage.py loaddata sample_clients
+load_sample_data
 .venv/bin/python manage.py collectstatic --noinput
 .venv/bin/python manage.py check
 

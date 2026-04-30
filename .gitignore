@@ -12,6 +12,7 @@ ENV/
 # Django/local runtime files
 db.sqlite3
 *.sqlite3
+*.sqlite3-*
 *.log
 media/
 staticfiles/

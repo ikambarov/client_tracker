@@ -33,6 +33,34 @@ def env_list(name, default=''):
     return [item.strip() for item in os.environ.get(name, default).split(',') if item.strip()]
 
 
+def required_env(name):
+    value = os.environ.get(name, '')
+    if not value.strip():
+        raise ImproperlyConfigured(f'{name} environment variable is required.')
+    return value
+
+
+def mysql_port(name, default='3306'):
+    value = os.environ.get(name, default).strip()
+    if not value.isdigit():
+        raise ImproperlyConfigured(f'{name} must be a numeric port.')
+    return value
+
+
+def mysql_database_config(host, port, user, password):
+    return {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DB_NAME', 'client_tracker'),
+        'USER': user,
+        'PASSWORD': password,
+        'HOST': host.strip(),
+        'PORT': port,
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+    }
+
+
 # SECURITY WARNING: keep the secret key used in production secret.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
@@ -104,21 +132,30 @@ WSGI_APPLICATION = 'client_tracker.wsgi.application'
 # Database
 # Use SQLite by default. Set DATABASE_TYPE=mysql to use MySQL.
 DATABASE_TYPE = os.environ.get('DATABASE_TYPE', 'sqlite').lower()
+READER_DATABASE_ALIAS = ''
 
 if DATABASE_TYPE == 'mysql':
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DB_NAME', 'client_tracker'),
-            'USER': os.environ.get('DB_USER', 'admin'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-            'HOST': os.environ.get('DB_HOST', ''),
-            'PORT': os.environ.get('DB_PORT', '3306'),
-            'OPTIONS': {
-                'charset': 'utf8mb4',
-            },
-        }
+        'default': mysql_database_config(
+            required_env('DB_HOST'),
+            mysql_port('DB_PORT'),
+            os.environ.get('DB_USER', 'admin'),
+            os.environ.get('DB_PASSWORD', ''),
+        ),
     }
+
+    reader_host = os.environ.get('DB_READER_HOST', '').strip()
+    if reader_host:
+        DATABASES['reader'] = mysql_database_config(
+            reader_host,
+            mysql_port('DB_READER_PORT', os.environ.get('DB_PORT', '3306')),
+            os.environ.get('DB_READER_USER', 'admin'),
+            os.environ.get('DB_READER_PASSWORD', ''),
+        )
+        READER_DATABASE_ALIAS = 'reader'
+
+    if READER_DATABASE_ALIAS:
+        DATABASE_ROUTERS = ['client_tracker.db_router.PrimaryReplicaRouter']
 else:
     DATABASES = {
         'default': {
