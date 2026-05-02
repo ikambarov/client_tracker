@@ -2,15 +2,19 @@
 
 A small Django app for tracking clients.
 
+## Requirements
+
+Minimum 2CPU, 2GB Memory
+
 ## Install on Linux
 
 Run these commands from the home folder of the Linux user:
 
 ```bash
+sudo yum install -y git
 cd ~
 git clone https://github.com/ikambarov/client_tracker.git
-cd client_tracker
-./scripts/setup_systemd.sh
+bash client_tracker/scripts/setup_systemd.sh
 ```
 
 The script installs dependencies, creates `.venv`, runs migrations, loads sample data, installs the `client-tracker` systemd service, and starts the app.
