@@ -47,76 +47,77 @@ cd client_tracker
 
 ## Optional settings
 
-The setup script has defaults. Use environment variables only when you need to override them.
+The setup script has defaults. Use command-line options only when you need to override them.
 
 ```text
-APP_DIR              App folder. Default: $HOME/client_tracker
-APP_USER             Linux user for systemd. Default: ec2-user
-APP_GROUP            Linux group for systemd. Default: same as APP_USER
-PORT                 App port. Default: 80
-GUNICORN_WORKERS     Gunicorn worker processes. Default: 2
-GUNICORN_TIMEOUT     Request timeout in seconds. Default: 120
-DJANGO_ALLOWED_HOSTS Allowed hostnames/IPs. Default: *
-DJANGO_DEBUG         Debug mode. Default: False
-DATABASE_TYPE        sqlite or mysql. Default: sqlite
+--app-dir PATH                App folder. Default: $HOME/client_tracker
+--app-user USER               Linux user for systemd. Default: ec2-user
+--app-group GROUP             Linux group for systemd. Default: same as --app-user
+--port PORT                   App port. Default: 80
+--gunicorn-workers COUNT      Gunicorn worker processes. Default: 2
+--gunicorn-timeout SECONDS    Request timeout in seconds. Default: 120
+--django-allowed-hosts VALUE  Allowed hostnames/IPs. Default: *
+--django-debug true|false     Debug mode. Default: False
+--database-type sqlite|mysql  Database type. Default: sqlite
+--help                        Show all setup options
 ```
 
 Example:
 
 ```bash
-PORT=8080 GUNICORN_WORKERS=3 ./scripts/setup_systemd.sh
+./scripts/setup_systemd.sh --port 8080 --gunicorn-workers 3
 ```
 
 ## MySQL settings
 
-Set `DATABASE_TYPE=mysql` to use MySQL.
+Set `--database-type mysql` to use MySQL.
 
 ```text
-DATABASE_TYPE        sqlite or mysql. Default: sqlite
-DB_NAME              Database name. Default: client_tracker
+--database-type TYPE  sqlite or mysql. Default: sqlite
+--db-name NAME        Database name. Default: client_tracker
 
-DB_HOST              Writer database host. Example: writer-db.example.com
-DB_PORT              Writer database port. Default: 3306
-DB_USER              Writer database username. Default: admin
-DB_PASSWORD          Writer database password. Default: empty
+--db-host HOST        Writer database host. Example: writer-db.example.com
+--db-port PORT        Writer database port. Default: 3306
+--db-user USER        Writer database username. Default: admin
+--db-password VALUE   Writer database password. Default: empty
 ```
 
 Example with writer:
 
 ```bash
 cd ~/client_tracker
-DATABASE_TYPE=mysql \
-DB_NAME=client_tracker \
-DB_HOST=writer-db.example.com \
-DB_PORT=3306 \
-DB_USER=writer_user \
-DB_PASSWORD=writer-password \
-./scripts/setup_systemd.sh
+./scripts/setup_systemd.sh \
+  --database-type mysql \
+  --db-name client_tracker \
+  --db-host writer-db.example.com \
+  --db-port 3306 \
+  --db-user writer_user \
+  --db-password writer-password
 ```
 
 Reader variables are optional. If they are not set, the writer database is used for reads and writes.
 ```text
-DB_READER_HOST       Optional reader database host. Example: reader-db.example.com
-DB_READER_PORT       Reader database port. Default: 3306
-DB_READER_USER       Reader database username. Default: admin
-DB_READER_PASSWORD   Reader database password. Default: empty
+--db-reader-host HOST       Optional reader database host. Example: reader-db.example.com
+--db-reader-port PORT       Reader database port. Default: writer port
+--db-reader-user USER       Reader database username. Default: admin
+--db-reader-password VALUE  Reader database password. Default: empty
 ```
 
 Example with writer and reader:
 
 ```bash
 cd ~/client_tracker
-DATABASE_TYPE=mysql \
-DB_NAME=client_tracker \
-DB_HOST=writer-db.example.com \
-DB_PORT=3306 \
-DB_USER=writer_user \
-DB_PASSWORD=writer-password \
-DB_READER_HOST=reader-db.example.com \
-DB_READER_PORT=3306 \
-DB_READER_USER=reader_user \
-DB_READER_PASSWORD=reader-password \
-./scripts/setup_systemd.sh
+./scripts/setup_systemd.sh \
+  --database-type mysql \
+  --db-name client_tracker \
+  --db-host writer-db.example.com \
+  --db-port 3306 \
+  --db-user writer_user \
+  --db-password writer-password \
+  --db-reader-host reader-db.example.com \
+  --db-reader-port 3306 \
+  --db-reader-user reader_user \
+  --db-reader-password reader-password
 ```
 
 ## Benchmark app/db
