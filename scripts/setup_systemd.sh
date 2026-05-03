@@ -10,6 +10,7 @@ GUNICORN_WORKERS="2"
 GUNICORN_TIMEOUT="120"
 SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
 ENV_FILE="/etc/client-tracker.env"
+LOG_DIR="/var/log/client-tracker"
 
 DJANGO_SECRET_KEY=""
 DJANGO_DEBUG="False"
@@ -231,6 +232,7 @@ sed \
   "${SERVICE_TEMPLATE}" > "${tmp_service}"
 sudo install -m 0644 "${tmp_service}" "${SERVICE_FILE}"
 rm -f "${tmp_service}"
+sudo install -d -m 0755 -o "${APP_USER}" -g "${APP_GROUP}" "${LOG_DIR}"
 
 sudo systemctl daemon-reload
 sudo systemctl enable "${APP_NAME}"
