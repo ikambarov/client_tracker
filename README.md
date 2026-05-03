@@ -4,7 +4,8 @@ A small Django app for tracking clients.
 
 ## Requirements
 
-Minimum 2CPU, 2GB Memory
+- Minimum 1CPU, 1GB Memory
+- Python3
 
 ## Install on Linux
 
