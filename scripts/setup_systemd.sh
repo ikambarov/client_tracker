@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 APP_NAME="client-tracker"
-APP_DIR="${HOME}/client_tracker"
+APP_DIR="/app"
 APP_USER="ec2-user"
 APP_GROUP=""
 PORT="80"
@@ -36,7 +38,7 @@ Usage: setup_systemd.sh [options]
 Install and start the client-tracker systemd service.
 
 App and systemd options:
-  --app-dir PATH                         App folder. Default: $HOME/client_tracker
+  --app-dir PATH                         App folder. Default: /app
   --app-user USER                        Linux user for systemd. Default: ec2-user
   --app-group GROUP                      Linux group for systemd. Default: same as --app-user
   --port PORT                            App port. Default: 80
@@ -82,6 +84,7 @@ option_value() {
 
   printf '%s' "${value}"
 }
+
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -219,6 +222,7 @@ python3 -m venv .venv
 load_sample_data
 .venv/bin/python manage.py collectstatic --noinput
 .venv/bin/python manage.py check
+sudo chown -R "${APP_USER}:${APP_GROUP}" "${APP_DIR}"
 
 tmp_service="$(mktemp)"
 sed \

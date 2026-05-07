@@ -13,9 +13,8 @@ Run these commands from the home folder of the Linux user:
 
 ```bash
 sudo yum install -y git
-cd ~
-git clone https://github.com/ikambarov/client_tracker.git
-bash client_tracker/scripts/setup_systemd.sh
+sudo git clone https://github.com/ikambarov/client_tracker.git /app
+sudo bash /app/scripts/setup_systemd.sh
 ```
 
 The script installs dependencies, creates `.venv`, runs migrations, loads sample data, installs the `client-tracker` systemd service, and starts the app.
@@ -39,11 +38,9 @@ This removes the current app folder, clones a fresh copy, and runs setup again:
 ```bash
 sudo systemctl stop client-tracker
 sudo rm -f /etc/client-tracker.env
-cd ~
-rm -rf client_tracker
-git clone https://github.com/ikambarov/client_tracker.git
-cd client_tracker
-./scripts/setup_systemd.sh
+sudo rm -rf /app
+sudo git clone https://github.com/ikambarov/client_tracker.git /app
+sudo bash /app/scripts/setup_systemd.sh
 ```
 
 ## Optional settings
@@ -51,7 +48,7 @@ cd client_tracker
 The setup script has defaults. Use command-line options only when you need to override them.
 
 ```text
---app-dir PATH                App folder. Default: $HOME/client_tracker
+--app-dir PATH                App folder. Default: /app
 --app-user USER               Linux user for systemd. Default: ec2-user
 --app-group GROUP             Linux group for systemd. Default: same as --app-user
 --port PORT                   App port. Default: 80
