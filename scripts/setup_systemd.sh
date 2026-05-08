@@ -10,6 +10,7 @@ APP_GROUP=""
 PORT="80"
 GUNICORN_WORKERS="2"
 GUNICORN_TIMEOUT="120"
+PYTHON_BIN="${PYTHON_BIN:-python3.12}"
 SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
 ENV_FILE="/etc/client-tracker.env"
 LOG_DIR="/var/log/client-tracker"
@@ -44,6 +45,7 @@ App and systemd options:
   --port PORT                            App port. Default: 80
   --gunicorn-workers COUNT               Gunicorn worker processes. Default: 2
   --gunicorn-timeout SECONDS             Request timeout in seconds. Default: 120
+  --python-bin PATH                      Python 3.12+ interpreter. Default: python3.12
   --env-file PATH                        Environment file path. Default: /etc/client-tracker.env
 
 Django options:
@@ -94,6 +96,7 @@ while [ "$#" -gt 0 ]; do
     --port) PORT="$(option_value "$1" "${2:-}")"; shift 2 ;;
     --gunicorn-workers) GUNICORN_WORKERS="$(option_value "$1" "${2:-}")"; shift 2 ;;
     --gunicorn-timeout) GUNICORN_TIMEOUT="$(option_value "$1" "${2:-}")"; shift 2 ;;
+    --python-bin) PYTHON_BIN="$(option_value "$1" "${2:-}")"; shift 2 ;;
     --env-file) ENV_FILE="$(option_value "$1" "${2:-}")"; shift 2 ;;
     --django-secret-key) DJANGO_SECRET_KEY="$(option_value "$1" "${2:-}")"; shift 2 ;;
     --django-debug) DJANGO_DEBUG="$(option_value "$1" "${2:-}")"; shift 2 ;;
@@ -146,9 +149,35 @@ existing_env_value() {
 }
 
 generate_secret_key() {
-  python3 - <<'PY'
+  "${PYTHON_BIN}" - <<'PY'
 import secrets
 print(secrets.token_urlsafe(50))
+PY
+}
+
+install_system_packages() {
+  if [ "${PYTHON_BIN}" = "python3.12" ]; then
+    sudo yum install -y python3.12 python3.12-pip httpd-tools
+  else
+    sudo yum install -y httpd-tools
+  fi
+}
+
+ensure_supported_python() {
+  if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+    echo "Python interpreter not found: ${PYTHON_BIN}" >&2
+    echo "Install Python 3.12 or newer, or pass --python-bin PATH." >&2
+    exit 2
+  fi
+
+  "${PYTHON_BIN}" - <<'PY'
+import sys
+
+if sys.version_info < (3, 12):
+    version = ".".join(str(part) for part in sys.version_info[:3])
+    raise SystemExit(
+        f"Python 3.12 or newer is required for the pinned Django version; found {version}."
+    )
 PY
 }
 
@@ -201,7 +230,7 @@ write_env_file() {
 
 load_sample_data() {
   client_count="$(
-    .venv/bin/python manage.py shell -c "from tracker.models import Client; print(Client.objects.count())"
+    .venv/bin/python manage.py shell --no-imports -c "from tracker.models import Client; print(Client.objects.count())"
   )"
 
   if [ "${client_count}" = "0" ]; then
@@ -211,11 +240,11 @@ load_sample_data() {
   fi
 }
 
+install_system_packages
+ensure_supported_python
 write_env_file
 
-sudo yum install -y python3 python3-pip httpd-tools
-
-python3 -m venv .venv
+"${PYTHON_BIN}" -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python manage.py migrate

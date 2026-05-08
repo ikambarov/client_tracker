@@ -5,7 +5,7 @@ A small Django app for tracking clients.
 ## Requirements
 
 - Minimum 1CPU, 1GB Memory
-- Python3
+- Python 3.12 or newer
 
 ## Install on Linux
 
@@ -54,6 +54,7 @@ The setup script has defaults. Use command-line options only when you need to ov
 --port PORT                   App port. Default: 80
 --gunicorn-workers COUNT      Gunicorn worker processes. Default: 2
 --gunicorn-timeout SECONDS    Request timeout in seconds. Default: 120
+--python-bin PATH             Python 3.12+ interpreter. Default: python3.12
 --django-allowed-hosts VALUE  Allowed hostnames/IPs. Default: *
 --django-debug true|false     Debug mode. Default: False
 --database-type sqlite|mysql  Database type. Default: sqlite
