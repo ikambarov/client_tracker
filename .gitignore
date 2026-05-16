@@ -29,8 +29,10 @@ staticfiles/
 htmlcov/
 
 # Build/package output
+.lambda_build/
 build/
 dist/
+*.zip
 *.egg-info/
 
 # Editor and OS files
